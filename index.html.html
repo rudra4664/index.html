@@ -1,0 +1,191 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Interactive Business Case Quiz</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .question { margin-bottom: 15px; }
+        .story { margin-bottom: 25px; }
+        .narration { margin-bottom: 25px; padding: 10px; border: 1px solid #ccc; background-color: #f9f9f9; }
+    </style>
+</head>
+<body>
+    <div class="story">
+        <p>
+            The sales team at "Innovate Solutions," a technology consulting firm, was on the verge of submitting a crucial bid for a multi-million dollar project with a new, high-profile client. The deadline for submission was 5:00 PM on a Friday. The team had been working tirelessly for weeks, and the final proposal document was a collaborative effort involving inputs from sales, technical, and finance teams. At 4:30 PM, the final version was ready. The Sales Lead, Mark, attempted to upload the document to the client's procurement portal, but he encountered a persistent "Upload Failed: File Size Exceeds Limit" error. Panic set in as he and his team scrambled to compress the file, but every attempt resulted in a loss of image quality, making the proposal look unprofessional. By the time they found a viable solution to reduce the file size without compromising quality, it was 5:15 PM. The submission portal had closed automatically at the deadline. The bid was missed.
+        </p>
+    </div>
+
+    <form id="quizForm">
+        <div>
+            <label for="name">Name:</label> <input type="text" id="name" name="name" required><br>
+            <label for="email">Email:</label> <input type="email" id="email" name="email" required><br>
+        </div>
+        <!-- Questions q1 to q7 -->
+        <div class="question">
+            <p>1. What exactly went wrong?</p>
+            <input type="radio" name="q1" value="A"> A. Final proposal was submitted in time.<br>
+            <input type="radio" name="q1" value="B"> B. The final proposal document could not be uploaded due to file size exceeding the portal limit.<br>
+            <input type="radio" name="q1" value="C"> C. The client's website was down.<br>
+            <input type="radio" name="q1" value="D"> D. The file was lost.<br>
+        </div>
+        <div class="question">
+            <p>2. What was the consequence?</p>
+            <input type="radio" name="q2" value="A"> A. New client acquisition.<br>
+            <input type="radio" name="q2" value="B"> B. They gained revenue.<br>
+            <input type="radio" name="q2" value="C"> C. They missed the opportunity to bid for the project.<br>
+            <input type="radio" name="q2" value="D"> D. Nothing happened.<br>
+        </div>
+        <div class="question">
+            <p>3. Which quality parameters were impacted?</p>
+            <input type="radio" name="q3" value="A"> A. Timeliness and Adherence to Client Requirements.<br>
+            <input type="radio" name="q3" value="B"> B. Only cost issues.<br>
+            <input type="radio" name="q3" value="C"> C. Only quality of content.<br>
+            <input type="radio" name="q3" value="D"> D. No impacts.<br>
+        </div>
+        <div class="question">
+            <p>4. What caused the issue?</p>
+            <input type="radio" name="q4" value="A"> A. They used too many images that were not optimized.<br>
+            <input type="radio" name="q4" value="B"> B. Too many people worked on the document.<br>
+            <input type="radio" name="q4" value="C"> C. They had wrong information.<br>
+            <input type="radio" name="q4" value="D"> D. They did not check client preferences.<br>
+        </div>
+        <div class="question">
+            <p>5. What was the immediate corrective action?</p>
+            <input type="radio" name="q5" value="A"> A. They successfully uploaded document.<br>
+            <input type="radio" name="q5" value="B"> B. They compressed the file unsuccessfully, then apologized.<br>
+            <input type="radio" name="q5" value="C"> C. They switched to email.<br>
+            <input type="radio" name="q5" value="D"> D. They didn't do any action.<br>
+        </div>
+        <div class="question">
+            <p>6. What will be done to prevent recurrence?</p>
+            <input type="radio" name="q6" value="A"> A. Create a "Proposal Submission Checklist" and standardized templates.<br>
+            <input type="radio" name="q6" value="B"> B. Stop submitting proposals.<br>
+            <input type="radio" name="q6" value="C"> C. Lower quality expectations.<br>
+            <input type="radio" name="q6" value="D"> D. They will perform more compression.<br>
+        </div>
+        <div class="question">
+            <p>7. Who is responsible for implementing corrective and preventive actions?</p>
+            <input type="radio" name="q7" value="A"> A. Sales Operations Manager.<br>
+            <input type="radio" name="q7" value="B"> B. CEO.<br>
+            <input type="radio" name="q7" value="C"> C. IT Department.<br>
+            <input type="radio" name="q7" value="D"> D. External consultant.<br>
+        </div>
+
+        <!-- Narration for 5 Whys Technique -->
+        <div class="narration">
+            <h3>Understanding the "5 Whys" Technique</h3>
+            <p>The "5 Whys" is a simple yet powerful root cause analysis technique used to explore the underlying reasons behind a problem. By repeatedly asking "Why?"—typically five times—you can peel away the layers of symptoms and uncover the true root cause of an issue. This method is widely used in Lean, Six Sigma, and quality improvement processes to ensure that corrective actions address the real problem, not just its symptoms.</p>
+            <p>In the following questions, we’ll apply the 5 Whys technique to the missed bid submission scenario. Your goal is to trace the issue back to its root cause by selecting the most accurate answer for each "Why."</p>
+        </div>
+
+        <!-- 5 Whys questions -->
+        <div class="question">
+            <p>8. Why did we miss the submission deadline?</p>
+            <input type="radio" name="q8" value="A"> A. Because the proposal file was too large to upload to the client's portal.<br>
+            <input type="radio" name="q8" value="B"> B. Because we were on vacation.<br>
+            <input type="radio" name="q8" value="C"> C. Because the computer broke.<br>
+            <input type="radio" name="q8" value="D"> D. Because we forgot the deadline.<br>
+        </div>
+        <div class="question">
+            <p>9. Why was the file too large?</p>
+            <input type="radio" name="q9" value="A"> A. Because the file size limit was low.<br>
+            <input type="radio" name="q9" value="B"> B. Because it contained numerous high-resolution images and embedded graphics that were not optimized for size.<br>
+            <input type="radio" name="q9" value="C"> C. Because the team didn't know how to compress files.<br>
+            <input type="radio" name="q9" value="D"> D. Because it was a long document.<br>
+        </div>
+        <div class="question">
+            <p>10. Why were the images and graphics not optimized?</p>
+            <input type="radio" name="q10" value="A"> A. Because there was a standardized process that mandated high resolution.<br>
+            <input type="radio" name="q10" value="B"> B. Because there was no standardized process or checklist for proposal assembly that included file size optimization guidelines.<br>
+            <input type="radio" name="q10" value="C"> C. Because high resolution images are always used.<br>
+            <input type="radio" name="q10" value="D"> D. Because they used wrong software.<br>
+        </div>
+        <div class="question">
+            <p>11. Why was there no standardized process?</p>
+            <input type="radio" name="q11" value="A"> A. Because the focus was on content and technical requirements were overlooked.<br>
+            <input type="radio" name="q11" value="B"> B. Because they did not want to use a checklist.<br>
+            <input type="radio" name="q11" value="C"> C. Because the process was to be determined.<br>
+            <input type="radio" name="q11" value="D"> D. Because they didn't think about deadlines.<br>
+        </div>
+        <div class="question">
+            <p>12. Why were the technical requirements overlooked?</p>
+            <input type="radio" name="q12" value="A"> A. Because there was a lack of awareness and a formal handover process from the team reviewing the RFP (Request for Proposal) to the team assembling the final document.<br>
+            <input type="radio" name="q12" value="B"> B. Because the technical team did not care.<br>
+            <input type="radio" name="q12" value="C"> C. Because they didn't read the RFP (Request for Proposal).<br>
+            <input type="radio" name="q12" value="D"> D. Because of a communication breakdown unrelated to the RFP (Request for Proposal).<br>
+        </div>
+
+        <br>
+        <input type="button" value="Submit" onclick="checkAnswers()">
+    </form>
+    <div id="result"></div>
+
+    <script>
+        function checkAnswers() {
+            var answers = { q1: 'B', q2: 'C', q3: 'A', q4: 'A', q5: 'B', q6: 'A', q7: 'A', q8: 'A', q9: 'B', q10: 'B', q11: 'A', q12: 'A' };
+            var correct = true;
+            var responses = {};
+            for (var key in answers) {
+                var options = document.getElementsByName(key);
+                var answered = false;
+                for (var i = 0; i < options.length; i++) {
+                    if (options[i].checked) {
+                        answered = true;
+                        responses[key] = options[i].value;
+                        if (options[i].value != answers[key]) {
+                            correct = false;
+                        }
+                    }
+                }
+                if (!answered) { 
+                    correct = false;
+                    responses[key] = '';
+                }
+            }
+            
+            var resultDiv = document.getElementById('result');
+            if (correct) {
+                resultDiv.innerHTML = "<p>🎉 Congratulations! You answered all questions correctly.</p>";
+                // Submit result to Google Sheet
+                submitResult(responses, true);
+            } else {
+                resultDiv.innerHTML = "<p>❌ Some answers are incorrect. Please try again.</p>";
+                // Optionally submit incorrect attempts as well
+                submitResult(responses, false);
+            }
+        }
+
+        function submitResult(responses, passed) {
+            var name = document.getElementById('name').value;
+            var email = document.getElementById('email').value;
+            var payload = {
+                name: name,
+                email: email,
+                q1: responses.q1 || '',
+                q2: responses.q2 || '',
+                q3: responses.q3 || '',
+                q4: responses.q4 || '',
+                q5: responses.q5 || '',
+                q6: responses.q6 || '',
+                q7: responses.q7 || '',
+                q8: responses.q8 || '',
+                q9: responses.q9 || '',
+                q10: responses.q10 || '',
+                q11: responses.q11 || '',
+                q12: responses.q12 || '',
+                score: Object.keys(responses).length,
+                passed: passed
+            };
+            
+            fetch('https://script.google.com/macros/s/AKfycbzQHLwNjEdCvHDhhdC2B5V0w6KLt4MKoBZyA3BoYP1M7QKM0eWKGJVPXtwYwxc-ePZv/exec', {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+        }
+    </script>
+</body>
+</html>
