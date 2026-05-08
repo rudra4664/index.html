@@ -1,191 +1,749 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Salvage Procurement RCA/CAPA Training</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Brain Teaser Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .question { margin-bottom: 15px; }
-        .story { margin-bottom: 25px; }
-        .narration { margin-bottom: 25px; padding: 10px; border: 1px solid #ccc; background-color: #f9f9f9; }
+        :root {
+            --bg-color: #0f172a;
+            --slide-bg: #1e293b;
+            --primary: #38bdf8;
+            --accent: #fbbf24;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Presentation Container */
+        .presentation-container {
+            position: relative;
+            width: 90vw;
+            max-width: 1280px;
+            aspect-ratio: 16 / 9;
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+
+        /* Slides */
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+            z-index: 1;
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            z-index: 10;
+        }
+
+        /* Typography */
+        h1, h2, h3 {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        h1 {
+            font-size: 5rem;
+            font-weight: 800;
+            background: linear-gradient(to right, var(--primary), #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+
+        h2.slide-title {
+            font-size: 3rem;
+            margin-bottom: 40px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 15px;
+            color: var(--primary);
+        }
+
+        p {
+            font-size: 1.5rem;
+            line-height: 1.6;
+        }
+
+        /* Layouts */
+        .center-layout {
+            text-align: center;
+            margin: auto;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            flex-grow: 1;
+            align-items: center;
+        }
+
+        /* Graphics */
+        .graphic-container {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            height: 100%;
+            min-height: 350px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.2);
+            /* Hidden by default */
+            opacity: 0;
+            transform: scale(0.95);
+            visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .graphic-container.revealed {
+            opacity: 1;
+            transform: scale(1);
+            visibility: visible;
+        }
+
+        .graphic-container svg {
+            width: 200px;
+            height: 200px;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3));
+        }
+
+        /* Q&A Interactive Elements */
+        .qa-box {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            height: 100%;
+            justify-content: center;
+        }
+
+        .question-card {
+            background: rgba(56, 189, 248, 0.1);
+            border-left: 5px solid var(--primary);
+            padding: 30px;
+            border-radius: 0 12px 12px 0;
+        }
+
+        .answer-card {
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            padding: 30px;
+            border-radius: 12px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            visibility: hidden;
+        }
+
+        .answer-card.revealed {
+            opacity: 1;
+            transform: translateY(0);
+            visibility: visible;
+        }
+
+        .label {
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.9rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .q-label { color: var(--primary); }
+        .a-label { color: var(--accent); }
+
+        .answer-text {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--accent);
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Controls */
+        .controls-overlay {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 60px;
+            z-index: 100;
+            pointer-events: none; /* Let clicks pass through empty space */
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            pointer-events: auto;
+        }
+
+        button {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            pointer-events: auto;
+        }
+
+        button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        button.reveal-btn {
+            background: var(--primary);
+            color: #0f172a;
+            border: none;
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
+        }
+
+        button.reveal-btn:hover {
+            background: #7dd3fc;
+            box-shadow: 0 6px 20px rgba(56, 189, 248, 0.6);
+        }
+
+        .slide-counter {
+            color: var(--text-muted);
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .instructions {
+            margin-top: 20px;
+            color: var(--text-muted);
+            font-size: 1rem;
+            display: flex;
+            gap: 20px;
+        }
+
+        .key-hint {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #fff;
+        }
     </style>
 </head>
 <body>
-    <div class="story">
-        <p>
-            The sales team at "Innovate Solutions," a technology consulting firm, was on the verge of submitting a crucial bid for a multi-million dollar project with a new, high-profile client. The deadline for submission was 5:00 PM on a Friday. The team had been working tirelessly for weeks, and the final proposal document was a collaborative effort involving inputs from sales, technical, and finance teams. At 4:30 PM, the final version was ready. The Sales Lead, Mark, attempted to upload the document to the client's procurement portal, but he encountered a persistent "Upload Failed: File Size Exceeds Limit" error. Panic set in as he and his team scrambled to compress the file, but every attempt resulted in a loss of image quality, making the proposal look unprofessional. By the time they found a viable solution to reduce the file size without compromising quality, it was 5:15 PM. The submission portal had closed automatically at the deadline. The bid was missed.
-        </p>
+
+    <div class="presentation-container">
+        
+        <!-- SLIDE 1: Title -->
+        <div class="slide active" id="slide-1">
+            <div class="center-layout">
+                <h1>Brain Teaser Quiz</h1>
+                <p style="color: var(--text-muted); max-width: 600px; margin: 0 auto;">
+                    Test your logic, lateral thinking, and puzzle-solving skills. Can you outsmart these riddles?
+                </p>
+                <div style="margin-top: 60px;">
+                    <svg width="150" height="150" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/>
+                        <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 2: Q1 -->
+        <div class="slide" id="slide-2">
+            <h2 class="slide-title">Riddle #1</h2>
+            <div class="two-column">
+                <div class="qa-box">
+                    <div class="question-card">
+                        <span class="label q-label">Question</span>
+                        <p>I have keys but no locks. I have space but no room. You can enter, but you can’t go outside. What am I?</p>
+                    </div>
+                    
+                    <button class="reveal-btn" onclick="revealAnswer()">Reveal Answer</button>
+                    
+                    <div class="answer-card answer">
+                        <span class="label a-label">Answer</span>
+                        <p class="answer-text">A Keyboard</p>
+                    </div>
+                </div>
+                <div class="graphic-container">
+                    <!-- SVG Keyboard Graphic -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
+                        <line x1="6" y1="8" x2="6.01" y2="8"></line>
+                        <line x1="10" y1="8" x2="10.01" y2="8"></line>
+                        <line x1="14" y1="8" x2="14.01" y2="8"></line>
+                        <line x1="18" y1="8" x2="18.01" y2="8"></line>
+                        <line x1="8" y1="12" x2="8.01" y2="12"></line>
+                        <line x1="12" y1="12" x2="12.01" y2="12"></line>
+                        <line x1="16" y1="12" x2="16.01" y2="12"></line>
+                        <line x1="7" y1="16" x2="17" y2="16"></line>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: Q2 -->
+        <div class="slide" id="slide-3">
+            <h2 class="slide-title">Riddle #2</h2>
+            <div class="two-column">
+                <div class="qa-box">
+                    <div class="question-card">
+                        <span class="label q-label">Question</span>
+                        <p>I have cities, but no houses. I have mountains, but no trees. I have water, but no fish. What am I?</p>
+                    </div>
+                    
+                    <button class="reveal-btn" onclick="revealAnswer()">Reveal Answer</button>
+                    
+                    <div class="answer-card answer">
+                        <span class="label a-label">Answer</span>
+                        <p class="answer-text">A Map</p>
+                    </div>
+                </div>
+                <div class="graphic-container">
+                    <!-- SVG Map Graphic -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon>
+                        <line x1="9" y1="3" x2="9" y2="18"></line>
+                        <line x1="15" y1="6" x2="15" y2="21"></line>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 4: Q3 -->
+        <div class="slide" id="slide-4">
+            <h2 class="slide-title">Riddle #3</h2>
+            <div class="two-column">
+                <div class="qa-box">
+                    <div class="question-card">
+                        <span class="label q-label">Question</span>
+                        <p>I speak without a mouth and hear without ears. I have no body, but I come alive with the wind. What am I?</p>
+                    </div>
+                    
+                    <button class="reveal-btn" onclick="revealAnswer()">Reveal Answer</button>
+                    
+                    <div class="answer-card answer">
+                        <span class="label a-label">Answer</span>
+                        <p class="answer-text">An Echo</p>
+                    </div>
+                </div>
+                <div class="graphic-container">
+                    <!-- SVG Soundwave Graphic -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 12h3l3-9 5 18 3-9h5"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 5: Q4 -->
+        <div class="slide" id="slide-5">
+            <h2 class="slide-title">Riddle #4 (The Dark Turn)</h2>
+            <div class="two-column">
+                <div class="qa-box">
+                    <div class="question-card">
+                        <span class="label q-label">Question</span>
+                        <p>A woman shoots her husband, then holds him underwater for 5 minutes. Finally, she hangs him. Right after, they enjoy a lovely dinner together. How?</p>
+                    </div>
+                    
+                    <button class="reveal-btn" onclick="revealAnswer()">Reveal Answer</button>
+                    
+                    <div class="answer-card answer">
+                        <span class="label a-label">Answer</span>
+                        <p class="answer-text">She took his picture.</p>
+                        <p style="font-size: 1rem; color: var(--text-muted); margin-top: 10px;">(Shooting = taking photo, underwater/hanging = developing film in a darkroom)</p>
+                    </div>
+                </div>
+                <div class="graphic-container">
+                    <!-- SVG Camera Graphic -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#f472b6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                        <circle cx="12" cy="13" r="4"></circle>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 6: Q5 -->
+        <div class="slide" id="slide-6">
+            <h2 class="slide-title">Riddle #5</h2>
+            <div class="two-column">
+                <div class="qa-box">
+                    <div class="question-card">
+                        <span class="label q-label">Question</span>
+                        <p>I am an odd number. Take away one letter, and I become even. What number am I?</p>
+                    </div>
+                    
+                    <button class="reveal-btn" onclick="revealAnswer()">Reveal Answer</button>
+                    
+                    <div class="answer-card answer">
+                        <span class="label a-label">Answer</span>
+                        <p class="answer-text">Seven</p>
+                        <p style="font-size: 1rem; color: var(--text-muted); margin-top: 10px;">(Remove the "S" from Seven, and it becomes "Even")</p>
+                    </div>
+                </div>
+                <div class="graphic-container">
+                    <!-- SVG Math Graphic -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                        <path d="M9 12h6"></path>
+                        <path d="M12 9v6"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 7: Q6 -->
+        <div class="slide" id="slide-7">
+            <h2 class="slide-title">Riddle #6</h2>
+            <div class="two-column">
+                <div class="qa-box">
+                    <div class="question-card">
+                        <span class="label q-label">Question</span>
+                        <p>What has hands but cannot clap?</p>
+                    </div>
+                    
+                    <button class="reveal-btn" onclick="revealAnswer()">Reveal Answer</button>
+                    
+                    <div class="answer-card answer">
+                        <span class="label a-label">Answer</span>
+                        <p class="answer-text">A Clock</p>
+                    </div>
+                </div>
+                <div class="graphic-container">
+                    <!-- SVG Clock Graphic -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 8: Q7 -->
+        <div class="slide" id="slide-8">
+            <h2 class="slide-title">Riddle #7</h2>
+            <div class="two-column">
+                <div class="qa-box">
+                    <div class="question-card">
+                        <span class="label q-label">Question</span>
+                        <p>What gets wetter the more it dries?</p>
+                    </div>
+                    
+                    <button class="reveal-btn" onclick="revealAnswer()">Reveal Answer</button>
+                    
+                    <div class="answer-card answer">
+                        <span class="label a-label">Answer</span>
+                        <p class="answer-text">A Towel</p>
+                    </div>
+                </div>
+                <div class="graphic-container">
+                    <!-- SVG Water Drop Graphic -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 9: Q8 -->
+        <div class="slide" id="slide-9">
+            <h2 class="slide-title">Riddle #8</h2>
+            <div class="two-column">
+                <div class="qa-box">
+                    <div class="question-card">
+                        <span class="label q-label">Question</span>
+                        <p>I have branches, but no fruit, trunk, or leaves. What am I?</p>
+                    </div>
+                    
+                    <button class="reveal-btn" onclick="revealAnswer()">Reveal Answer</button>
+                    
+                    <div class="answer-card answer">
+                        <span class="label a-label">Answer</span>
+                        <p class="answer-text">A Bank</p>
+                    </div>
+                </div>
+                <div class="graphic-container">
+                    <!-- SVG Bank Graphic -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="4" y="10" width="16" height="10" rx="2" ry="2"></rect>
+                        <polygon points="12 2 2 8 22 8"></polygon>
+                        <path d="M12 14v4"></path>
+                        <path d="M8 14v4"></path>
+                        <path d="M16 14v4"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 10: Q9 -->
+        <div class="slide" id="slide-10">
+            <h2 class="slide-title">Riddle #9</h2>
+            <div class="two-column">
+                <div class="qa-box">
+                    <div class="question-card">
+                        <span class="label q-label">Question</span>
+                        <p>What can run but never walks, has a mouth but never talks, has a head but never weeps, has a bed but never sleeps?</p>
+                    </div>
+                    
+                    <button class="reveal-btn" onclick="revealAnswer()">Reveal Answer</button>
+                    
+                    <div class="answer-card answer">
+                        <span class="label a-label">Answer</span>
+                        <p class="answer-text">A River</p>
+                    </div>
+                </div>
+                <div class="graphic-container">
+                    <!-- SVG River Graphic -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 12h4l3-3 5 6 5-6 3 3h2"></path>
+                        <path d="M2 18h4l3-3 5 6 5-6 3 3h2"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 11: Q10 -->
+        <div class="slide" id="slide-11">
+            <h2 class="slide-title">Riddle #10</h2>
+            <div class="two-column">
+                <div class="qa-box">
+                    <div class="question-card">
+                        <span class="label q-label">Question</span>
+                        <p>A grandfather, two fathers, and two sons went fishing. They caught three fish, one for each. How is this possible?</p>
+                    </div>
+                    
+                    <button class="reveal-btn" onclick="revealAnswer()">Reveal Answer</button>
+                    
+                    <div class="answer-card answer">
+                        <span class="label a-label">Answer</span>
+                        <p class="answer-text">There were 3 people.</p>
+                        <p style="font-size: 1rem; color: var(--text-muted); margin-top: 10px;">(A grandfather, his son, and his grandson)</p>
+                    </div>
+                </div>
+                <div class="graphic-container">
+                    <!-- SVG Family Graphic -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 12: Q11 -->
+        <div class="slide" id="slide-12">
+            <h2 class="slide-title">Riddle #11</h2>
+            <div class="two-column">
+                <div class="qa-box">
+                    <div class="question-card">
+                        <span class="label q-label">Question</span>
+                        <p>What can travel around the world while staying in a single corner?</p>
+                    </div>
+                    
+                    <button class="reveal-btn" onclick="revealAnswer()">Reveal Answer</button>
+                    
+                    <div class="answer-card answer">
+                        <span class="label a-label">Answer</span>
+                        <p class="answer-text">A Stamp</p>
+                    </div>
+                </div>
+                <div class="graphic-container">
+                    <!-- SVG Stamp Graphic -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 7V4h16v3"></path>
+                        <path d="M4 17v3h16v-3"></path>
+                        <path d="M4 10v4"></path>
+                        <path d="M20 10v4"></path>
+                        <rect x="8" y="8" width="8" height="8" rx="1"></rect>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 13: Q12 -->
+        <div class="slide" id="slide-13">
+            <h2 class="slide-title">Riddle #12</h2>
+            <div class="two-column">
+                <div class="qa-box">
+                    <div class="question-card">
+                        <span class="label q-label">Question</span>
+                        <p>I add five to nine, and get two. The correct answer is not fourteen. How is this possible?</p>
+                    </div>
+                    
+                    <button class="reveal-btn" onclick="revealAnswer()">Reveal Answer</button>
+                    
+                    <div class="answer-card answer">
+                        <span class="label a-label">Answer</span>
+                        <p class="answer-text">You are using a clock.</p>
+                        <p style="font-size: 1rem; color: var(--text-muted); margin-top: 10px;">(9 o'clock + 5 hours = 2 o'clock)</p>
+                    </div>
+                </div>
+                <div class="graphic-container">
+                    <!-- SVG Hourglass Graphic -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#fb923c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 4h16"></path>
+                        <path d="M4 20h16"></path>
+                        <path d="M6 4v4l6 6-6 6v4"></path>
+                        <path d="M18 4v4l-6 6 6 6v4"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 14: Conclusion -->
+        <div class="slide" id="slide-14">
+            <div class="center-layout">
+                <h1 style="background: linear-gradient(to right, var(--accent), #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Quiz Complete!</h1>
+                <p style="color: var(--text-muted); margin-top: 20px;">Tally up your scores and declare the winner.</p>
+                
+                <div style="margin-top: 60px;">
+                    <button onclick="currentSlide = 0; updateSlides();" style="background: var(--primary); color: #0f172a; border: none; font-size: 1.2rem; padding: 15px 30px;">Play Again</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Global Presentation Controls -->
+        <div class="controls-overlay">
+            <div class="slide-counter" id="counter">1 / 6</div>
+            <div class="nav-buttons">
+                <button onclick="prevSlide()" id="prevBtn" style="display: none;">&larr; Prev</button>
+                <button onclick="nextSlide()" id="nextBtn">Next &rarr;</button>
+            </div>
+        </div>
+
     </div>
 
-    <form id="quizForm">
-        <div>
-            <label for="name">Name:</label> <input type="text" id="name" name="name" required><br>
-            <label for="email">Email:</label> <input type="email" id="email" name="email" required><br>
-        </div>
-        <!-- Questions q1 to q7 -->
-        <div class="question">
-            <p>1. What exactly went wrong?</p>
-            <input type="radio" name="q1" value="A"> A. Final proposal was submitted in time.<br>
-            <input type="radio" name="q1" value="B"> B. The final proposal document could not be uploaded due to file size exceeding the portal limit.<br>
-            <input type="radio" name="q1" value="C"> C. The client's website was down.<br>
-            <input type="radio" name="q1" value="D"> D. The file was lost.<br>
-        </div>
-        <div class="question">
-            <p>2. What was the consequence?</p>
-            <input type="radio" name="q2" value="A"> A. New client acquisition.<br>
-            <input type="radio" name="q2" value="B"> B. They gained revenue.<br>
-            <input type="radio" name="q2" value="C"> C. They missed the opportunity to bid for the project.<br>
-            <input type="radio" name="q2" value="D"> D. Nothing happened.<br>
-        </div>
-        <div class="question">
-            <p>3. Which quality parameters were impacted?</p>
-            <input type="radio" name="q3" value="A"> A. Timeliness and Adherence to Client Requirements.<br>
-            <input type="radio" name="q3" value="B"> B. Only cost issues.<br>
-            <input type="radio" name="q3" value="C"> C. Only quality of content.<br>
-            <input type="radio" name="q3" value="D"> D. No impacts.<br>
-        </div>
-        <div class="question">
-            <p>4. What caused the issue?</p>
-            <input type="radio" name="q4" value="A"> A. They used too many images that were not optimized.<br>
-            <input type="radio" name="q4" value="B"> B. Too many people worked on the document.<br>
-            <input type="radio" name="q4" value="C"> C. They had wrong information.<br>
-            <input type="radio" name="q4" value="D"> D. They did not check client preferences.<br>
-        </div>
-        <div class="question">
-            <p>5. What was the immediate corrective action?</p>
-            <input type="radio" name="q5" value="A"> A. They successfully uploaded document.<br>
-            <input type="radio" name="q5" value="B"> B. They compressed the file unsuccessfully, then apologized.<br>
-            <input type="radio" name="q5" value="C"> C. They switched to email.<br>
-            <input type="radio" name="q5" value="D"> D. They didn't do any action.<br>
-        </div>
-        <div class="question">
-            <p>6. What will be done to prevent recurrence?</p>
-            <input type="radio" name="q6" value="A"> A. Create a "Proposal Submission Checklist" and standardized templates.<br>
-            <input type="radio" name="q6" value="B"> B. Stop submitting proposals.<br>
-            <input type="radio" name="q6" value="C"> C. Lower quality expectations.<br>
-            <input type="radio" name="q6" value="D"> D. They will perform more compression.<br>
-        </div>
-        <div class="question">
-            <p>7. Who is responsible for implementing corrective and preventive actions?</p>
-            <input type="radio" name="q7" value="A"> A. Sales Operations Manager.<br>
-            <input type="radio" name="q7" value="B"> B. CEO.<br>
-            <input type="radio" name="q7" value="C"> C. IT Department.<br>
-            <input type="radio" name="q7" value="D"> D. External consultant.<br>
-        </div>
-
-        <!-- Narration for 5 Whys Technique -->
-        <div class="narration">
-            <h3>Understanding the "5 Whys" Technique</h3>
-            <p>The "5 Whys" is a simple yet powerful root cause analysis technique used to explore the underlying reasons behind a problem. By repeatedly asking "Why?"—typically five times—you can peel away the layers of symptoms and uncover the true root cause of an issue. This method is widely used in Lean, Six Sigma, and quality improvement processes to ensure that corrective actions address the real problem, not just its symptoms.</p>
-            <p>In the following questions, we’ll apply the 5 Whys technique to the missed bid submission scenario. Your goal is to trace the issue back to its root cause by selecting the most accurate answer for each "Why."</p>
-        </div>
-
-        <!-- 5 Whys questions -->
-        <div class="question">
-            <p>8. Why did we miss the submission deadline?</p>
-            <input type="radio" name="q8" value="A"> A. Because the proposal file was too large to upload to the client's portal.<br>
-            <input type="radio" name="q8" value="B"> B. Because we were on vacation.<br>
-            <input type="radio" name="q8" value="C"> C. Because the computer broke.<br>
-            <input type="radio" name="q8" value="D"> D. Because we forgot the deadline.<br>
-        </div>
-        <div class="question">
-            <p>9. Why was the file too large?</p>
-            <input type="radio" name="q9" value="A"> A. Because the file size limit was low.<br>
-            <input type="radio" name="q9" value="B"> B. Because it contained numerous high-resolution images and embedded graphics that were not optimized for size.<br>
-            <input type="radio" name="q9" value="C"> C. Because the team didn't know how to compress files.<br>
-            <input type="radio" name="q9" value="D"> D. Because it was a long document.<br>
-        </div>
-        <div class="question">
-            <p>10. Why were the images and graphics not optimized?</p>
-            <input type="radio" name="q10" value="A"> A. Because there was a standardized process that mandated high resolution.<br>
-            <input type="radio" name="q10" value="B"> B. Because there was no standardized process or checklist for proposal assembly that included file size optimization guidelines.<br>
-            <input type="radio" name="q10" value="C"> C. Because high resolution images are always used.<br>
-            <input type="radio" name="q10" value="D"> D. Because they used wrong software.<br>
-        </div>
-        <div class="question">
-            <p>11. Why was there no standardized process?</p>
-            <input type="radio" name="q11" value="A"> A. Because the focus was on content and technical requirements were overlooked.<br>
-            <input type="radio" name="q11" value="B"> B. Because they did not want to use a checklist.<br>
-            <input type="radio" name="q11" value="C"> C. Because the process was to be determined.<br>
-            <input type="radio" name="q11" value="D"> D. Because they didn't think about deadlines.<br>
-        </div>
-        <div class="question">
-            <p>12. Why were the technical requirements overlooked?</p>
-            <input type="radio" name="q12" value="A"> A. Because there was a lack of awareness and a formal handover process from the team reviewing the RFP (Request for Proposal) to the team assembling the final document.<br>
-            <input type="radio" name="q12" value="B"> B. Because the technical team did not care.<br>
-            <input type="radio" name="q12" value="C"> C. Because they didn't read the RFP (Request for Proposal).<br>
-            <input type="radio" name="q12" value="D"> D. Because of a communication breakdown unrelated to the RFP (Request for Proposal).<br>
-        </div>
-
-        <br>
-        <input type="button" value="Submit" onclick="checkAnswers()">
-    </form>
-    <div id="result"></div>
+    <div class="instructions">
+        <span><span class="key-hint">Space</span> / <span class="key-hint">Enter</span> to Reveal Answer</span>
+        <span><span class="key-hint">&larr;</span> <span class="key-hint">&rarr;</span> to Change Slides</span>
+    </div>
 
     <script>
-        function checkAnswers() {
-            var answers = { q1: 'B', q2: 'C', q3: 'A', q4: 'A', q5: 'B', q6: 'A', q7: 'A', q8: 'A', q9: 'B', q10: 'B', q11: 'A', q12: 'A' };
-            var correct = true;
-            var responses = {};
-            for (var key in answers) {
-                var options = document.getElementsByName(key);
-                var answered = false;
-                for (var i = 0; i < options.length; i++) {
-                    if (options[i].checked) {
-                        answered = true;
-                        responses[key] = options[i].value;
-                        if (options[i].value != answers[key]) {
-                            correct = false;
-                        }
-                    }
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const counter = document.getElementById('counter');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        function updateSlides() {
+            // Hide all slides and reset their answers
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active');
+                
+                // Reset answers, buttons, and graphics when navigating away
+                if (index !== currentSlide) {
+                    const answerCard = slide.querySelector('.answer');
+                    const revealBtn = slide.querySelector('.reveal-btn');
+                    const graphicBox = slide.querySelector('.graphic-container');
+                    
+                    if (answerCard) answerCard.classList.remove('revealed');
+                    if (revealBtn) revealBtn.style.display = 'block';
+                    if (graphicBox) graphicBox.classList.remove('revealed');
                 }
-                if (!answered) { 
-                    correct = false;
-                    responses[key] = '';
-                }
-            }
+            });
+
+            // Show current slide
+            slides[currentSlide].classList.add('active');
             
-            var resultDiv = document.getElementById('result');
-            if (correct) {
-                resultDiv.innerHTML = "<p>🎉 Congratulations! You answered all questions correctly.</p>";
-                // Submit result to Google Sheet
-                submitResult(responses, true);
-            } else {
-                resultDiv.innerHTML = "<p>❌ Some answers are incorrect. Please try again.</p>";
-                // Optionally submit incorrect attempts as well
-                submitResult(responses, false);
+            // Update counter
+            counter.innerText = `${currentSlide + 1} / ${slides.length}`;
+
+            // Update button visibility
+            prevBtn.style.display = currentSlide === 0 ? 'none' : 'block';
+            nextBtn.style.display = currentSlide === slides.length - 1 ? 'none' : 'block';
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                currentSlide++;
+                updateSlides();
             }
         }
 
-        function submitResult(responses, passed) {
-            var name = document.getElementById('name').value;
-            var email = document.getElementById('email').value;
-            var payload = {
-                name: name,
-                email: email,
-                q1: responses.q1 || '',
-                q2: responses.q2 || '',
-                q3: responses.q3 || '',
-                q4: responses.q4 || '',
-                q5: responses.q5 || '',
-                q6: responses.q6 || '',
-                q7: responses.q7 || '',
-                q8: responses.q8 || '',
-                q9: responses.q9 || '',
-                q10: responses.q10 || '',
-                q11: responses.q11 || '',
-                q12: responses.q12 || '',
-                score: Object.keys(responses).length,
-                passed: passed
-            };
-            
-            fetch('https://script.google.com/macros/s/AKfycbwGvOAqAxK4wxVYaG78SruP91DndBQI6byKGVtdsCvBu4Xua3kLOSHRI_86VHchEG5L1g/exec', {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlides();
+            }
         }
+
+        function revealAnswer() {
+            const currentSlideEl = slides[currentSlide];
+            const answerCard = currentSlideEl.querySelector('.answer');
+            const revealBtn = currentSlideEl.querySelector('.reveal-btn');
+            const graphicBox = currentSlideEl.querySelector('.graphic-container');
+            
+            if (answerCard) {
+                answerCard.classList.add('revealed');
+                if (revealBtn) revealBtn.style.display = 'none';
+                if (graphicBox) graphicBox.classList.add('revealed');
+            }
+        }
+
+        // Keyboard Controls
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            } else if (e.key === ' ' || e.key === 'Enter') {
+                // If on a question slide, reveal answer first, then go next on second press
+                const currentSlideEl = slides[currentSlide];
+                const answerCard = currentSlideEl.querySelector('.answer');
+                
+                if (answerCard && !answerCard.classList.contains('revealed')) {
+                    revealAnswer();
+                } else {
+                    nextSlide();
+                }
+            }
+        });
+
+        // Initialize first view
+        updateSlides();
     </script>
 </body>
 </html>
